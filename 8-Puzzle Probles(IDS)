@@ -1,0 +1,55 @@
+# Define goal state
+GOAL_STATE = [[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 0]]
+
+# Possible directions: left, right, up, down
+DIRECTIONS = [(0, -1), (0, 1), (-1, 0), (1, 0)]
+
+def is_goal(board):
+    return board == GOAL_STATE
+
+def is_valid(x, y):
+    return 0 <= x < 3 and 0 <= y < 3
+
+def get_neighbors(board, x, y):
+    neighbors = []
+    for dx, dy in DIRECTIONS:
+        nx, ny = x + dx, y + dy
+        if is_valid(nx, ny):
+            # Create a new board state
+            new_board = [row[:] for row in board]
+            new_board[x][y], new_board[nx][ny] = new_board[nx][ny], new_board[x][y]
+            neighbors.append((new_board, nx, ny))
+    return neighbors
+
+def dfs(board, x, y, visited, depth=0, max_depth=30):
+    if is_goal(board):
+        print(f"Goal reached at depth {depth}!")
+        for row in board:
+            print(row)
+        return True
+
+    if depth > max_depth:
+        return False
+
+    visited.add(tuple(map(tuple, board)))
+
+    for neighbor, nx, ny in get_neighbors(board, x, y):
+        neighbor_tuple = tuple(map(tuple, neighbor))
+        if neighbor_tuple not in visited:
+            if dfs(neighbor, nx, ny, visited, depth + 1, max_depth):
+                return True
+
+    return False
+
+# Initial setup
+start_board = [[1, 2, 3],
+               [4, 0, 5],
+               [6, 7, 8]]
+start_x, start_y = 1, 1  # Position of the empty tile (0)
+
+# Run DFS
+visited_states = set()
+if not dfs(start_board, start_x, start_y, visited_states):
+    print("Goal not found within depth limit.")
